@@ -5,7 +5,13 @@ var Application = mongoose.model('Applications');
 
 //Shows all applications. Returns every application in the collection.
 exports.show_all_applications = function(req, res) {
- 	Application.find({}, function(err, applications) {
+
+  if(!req.isValidUser){
+    console.log('Request not completed due to lack of authentication');
+    return res.status(401).json({error:'User must be logged in to access this function'});
+  }
+
+ 	Application.find({authorID:req.user._id}, function(err, applications) {
   		if (err)
  			return res.status(500).send(err);
   		console.log("All applications shown");
