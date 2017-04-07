@@ -7,8 +7,8 @@ module.exports = function(app) {
 		.get(controller.show_all_posts);
 	app.route('/posts/:PostId/show')
 		.get(controller.show_a_post);
-	app.route('/interview')
-		.get(controller.show_all_posts);
+	//app.route('/interview')
+		//.get(controller.show_all_posts);
 
 	// POST REQUESTS
 	app.route('/posts/create')
