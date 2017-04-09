@@ -3,7 +3,7 @@
 var mongoose = require('mongoose');
 var Application = mongoose.model('Applications'); 
 
-//Shows all applications. Returns every application in the collection.
+//Shows all applications. Returns every application for a user.
 exports.show_all_applications = function(req, res) {
 
   if(!req.isValidUser){
@@ -104,22 +104,14 @@ exports.edit_an_application = function(req, res) {
     return res.status(400).json(errors);
   }
 
- 	Application.findOne({_id:id, authorID:req.user._id}, function(err, application) {
+ 	Application.findById(id, function(err, application) {
  		if (err)
  			return res.status(500).send(err);
     if(application == null) {
-      Application.count({_id:id}, function(err, count) {
-        if(count > 0) {
-          errors.userid = 'User does not have permission to modify this application';
-          return res.status(401).json(errors);
-        }
-        else {
-          errors.appid = 'Application id:'+id+' not found';
-          return res.status(404).json(errors);
-        }
-      });
+      errors.appid = 'Application id:'+id+' not found';
+      return res.status(404).json(errors);
     }
-    else {
+    if(application.authorID == req.user._id || req.user.isAdmin){
    		//Sets a new value to company, role, status or comment ONLY if a new title/thread value is provided.
    		//Otherwise, it will retain its old value
    		application.company = req.body.company || application.company;
@@ -133,6 +125,10 @@ exports.edit_an_application = function(req, res) {
    			console.log('Application id:'+id+' successfully updated');
    			return res.json(application);
    		});
+    }
+    else {
+      console.log('User requested to modify post made by '+application.authorID+' but has id '+req.user._id);
+      return res.status(401).json({error:'User does not have permission to modify this post'});
     }
  	});
 };
@@ -153,26 +149,22 @@ exports.remove_an_application = function(req, res) {
     return res.status(400).json(errors);
   }
 
-	Application.findOne({_id:id, authorID:req.user._id}, function(err, application) {
+	Application.findById(id, function(err, application) {
 		if (err)
 			return res.status(500).send(err);
     if(application == null) {
-      Application.count({_id:id}, function(err, count) {
-        if(count > 0) {
-          errors.userid = 'User does not have permission to modify this application';
-          return res.status(401).json(errors);
-        }
-        else {
-          errors.appid = 'Application id:'+id+' not found';
-          return res.status(404).json(errors);
-        }
-      });
+      errors.appid = 'Application id:'+id+' not found';
+      return res.status(404).json(errors);
     }
-    else {
+    if(application.authorID == req.user._id || req.user.isAdmin){
       //Remove application
   		application.remove();
   		console.log('Application id:'+id+' successfully removed');
   		return res.send('Application removed');
+    }
+    else {
+      console.log('User requested to modify post made by '+application.authorID+' but has id '+req.user._id);
+      return res.status(401).json({error:'User does not have permission to modify this post'});
     }
   });
 };

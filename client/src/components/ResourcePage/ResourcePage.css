@@ -1,0 +1,13 @@
+ .flex-container {
+   display: flex;
+   margin-right: auto;
+   margin-left: auto;
+ }
+
+ .mainbar {
+   flex-basis: 66.667%;
+ }
+
+.sidebar {
+   flex-basis: 33.333%;
+ }

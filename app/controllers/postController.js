@@ -96,22 +96,13 @@ exports.edit_a_post = function(req, res) {
 		return res.status(400).json(errors);
 	}
 	
-	Post.findOne({_id:id, authorID:req.user._id}, function(err, post) {
+	Post.findById(id, function(err, post) {
 		if (err)
 			return res.status(500).send(err);
 		if(post == null) {
-			//No matching post was found, so perform one more query to check if post exists
-			//This determines what error message is sent back to the client
-			Post.count({_id:id}, function(err, count) {
-				if(count > 0) {	//Post exists, so issue must be due to lack of permissions
-					return res.status(401).send('User does not have permission to modify this post');
-				}
-				else {	//Post does not exist, so that is the issue
-					return res.status(404).send('Post id:'+id+' not found');
-				}
-			});
+			return res.status(404).json({error:'Post id:'+id+' not found'});
 		}
-		else {
+		if(post.authorID == req.user._id || req.user.isAdmin){
 			//Sets a new value to the title/thread ONLY if a new title/thread value is provided.
 			//Otherwise, it will retain its old value
 			post.title = req.body.title || post.title;
@@ -123,6 +114,10 @@ exports.edit_a_post = function(req, res) {
 				console.log('Post id:'+id+' successfully updated');
 				return res.json(post);
 			});
+		}
+		else {
+			console.log('User requested to modify post made by '+post.authorID+' but has id '+req.user._id);
+			return res.status(401).json({error:'User does not have permission to modify this post'});
 		}
 	});
 };
@@ -143,26 +138,21 @@ exports.remove_a_post = function(req, res) {
 		return res.status(400).json(errors);
 	}
 
-	Post.findOne({_id:id, authorID:req.user._id}, function(err, post) {
+	Post.findById(id, function(err, post) {
 		if (err)
 			return res.status(500).send(err);
 		if(post == null) {
-			Post.count({_id:id}, function(err, count) {
-				if(count > 0) {
-					errors.userid = 'User does not have permission to modify this post';
-					return res.status(401).json(errors);
-				}
-				else {
-					errors.postid = 'Post id:'+id+' not found';
-					return res.status(404).json(errors);
-				}
-			});
+			return res.status(404).json({error:'Post id:'+id+' not found'});
 		}
-		else {
+		if(post.authorID == req.user._id || req.user.isAdmin){
 			//Removes the post
 			post.remove();
 			console.log('Post id:'+id+' successfully removed');
 			return res.json({result:'Post removed'});
+		}
+		else {
+			console.log('User requested to modify post made by '+post.authorID+' but has id '+req.user._id);
+			return res.status(401).json({error:'User does not have permission to modify this post'});
 		}
 	});
 };
@@ -187,7 +177,7 @@ exports.vote_on_post = function(req, res) {
 	if(Object.keys(errors).length > 0)
 		return res.status(400).json(errors);
 
-	Post.find({_id:id}, function(err, post) {
+	Post.findById(id, function(err, post) {
 
 		// post is an array of objects
 		var post = post[0];

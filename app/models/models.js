@@ -95,10 +95,20 @@ const UserSchema = new mongoose.Schema({
     type: String,
     index: { unique: true }
   },
-  password: String,
-  name: String,
+  password: {
+    type: String,
+    required: true
+  },
+  name: {
+    type: String,
+    required: true
+  },
+  isAdmin: {
+    type: Boolean,
+    required: true,
+    default:false
+  }
 });
-
 
 /**
  * Compare the passed password with the value in the database. A model method.

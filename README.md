@@ -31,3 +31,10 @@ Note: Items in *italics* require user authentication.
 * _Edit an application: POST /applications/[ApplicationId]/edit_
   * A new company, role, status and/or comment must be provided, otherwise old values will remain
 * _Delete an application: DELETE /applications/[ApplicationId]/remove_
+
+### All requests that deal with reddit
+* View posts from a subreddit: GET /reddit/:Subreddit/:Sort
+  * [Subreddit] is the name of the subreddit (e.g. cscareerquestions)
+  * [Sort] is the sorting method that should be applied (hot/new/top/controversial)
+* Search posts from a subreddit: POST /reddit/:Subreddit/search
+  * Requires searchterm

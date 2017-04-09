@@ -38,11 +38,13 @@ var comments = require('./app/routes/commentRoutes');
 var applications = require('./app/routes/applicationRoutes');
 var auth = require('./app/routes/authRoutes');
 var api = require('./app/routes/api');
+var reddit = require('./app/routes/redditRoutes');
 
 posts(app);
 comments(app);
 applications(app);
 auth(app);
+reddit(app);
 
 app.use('/api', api);
 

@@ -27,7 +27,7 @@ exports.add_a_comment = function(req, res) {
 	if(Object.keys(errors).length > 0)
 		return res.status(400).json(errors);
 
-	Post.findOne({_id:postid}, function(err, post) {
+	Post.findById(postid, function(err, post) {
 		if(err)
 			return res.status(500).send(err);
 		if(post == null){
@@ -69,7 +69,7 @@ exports.edit_a_comment = function(req, res) {
 	if(Object.keys(errors).length > 0)
 		return res.status(400).json(errors);
 
-	Post.findOne({_id: postid}, function(err, post) {
+	Post.findById(postid, function(err, post) {
 		if(err)
 			return res.status(500).send(err);
 		if(post == null){
@@ -81,13 +81,15 @@ exports.edit_a_comment = function(req, res) {
 		for(var i = 0; i < post.comments.length; i++) {
 			if(commentid == post.comments[i]._id){
 				foundComment = true;
-				//If the user requests a comment which he/she did not create
-				if(req.user._id != post.comments[i].authorID){
+				//Only allow users to edit if they made the comment or the user is an admin
+				if(req.user._id == post.comments[i].authorID || req.user.isAdmin){
+					post.comments[i].text = comment;
+					break;
+				}
+				else {
 					errors.userid = 'User does not have permission to modify comment with id:'+commentid;
 					return res.status(401).json(errors);
 				}
-				post.comments[i].text = comment;
-				break;
 			}
 		}
 		if(!foundComment){
@@ -124,7 +126,7 @@ exports.remove_a_comment = function(req, res) {
 	if(Object.keys(errors).length > 0)
 		return res.status(400).json(errors);
 
-	Post.findOne({_id: postid}, function(err, post) {
+	Post.findById(postid, function(err, post) {
 		if(err)
 			return res.status(500).send(err);
 		if(post == null){
@@ -136,14 +138,15 @@ exports.remove_a_comment = function(req, res) {
 		for(var i = 0; i < post.comments.length; i++) {
 			if(commentid == post.comments[i]._id){
 				foundComment = true;
-				//If the user requests a comment which he/she did not create
-				if(req.user._id != post.comments[i].authorID){
+				if(req.user._id == post.comments[i].authorID || req.user.isAdmin){
+					//Removes 1 element from array with index at i, returns modified array
+					post.comments.splice(i, 1);
+					break;
+				}
+				else {
 					errors.userid = 'User does not have permission to modify comment with id:'+commentid;
 					return res.status(401).json(errors);
 				}
-				//Removes 1 element from array with index at i, returns modified array
-				post.comments.splice(i, 1);
-				break;
 			}
 		}
 		if(!foundComment){
