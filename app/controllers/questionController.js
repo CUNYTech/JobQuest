@@ -66,7 +66,7 @@ exports.create_a_question = function(req, res) {
 //Displays a question given an ID.
 exports.show_a_question = function(req, res) {
 
-	var id = req.params.questionid;
+	var id = req.params.QuestionId;
 	var errors = {};
 
 	if(!id){
