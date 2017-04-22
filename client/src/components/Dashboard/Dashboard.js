@@ -36,7 +36,6 @@ const Dashboard = ({ secretData }) => (
       {renderIcon('icons/ForumIcon.png','Forums','/forum')}
       {renderIcon('icons/ApplicationIcon.png','Applications','/app-log')}
       {renderIcon('icons/InterviewIcon.png','Interview Questions','/interview')}
-      {renderIcon('icons/ProfileIcon.png','Profile','/profile')}
       {renderIcon('icons/ResourcesIcon.png','Resources','/resources')}
     </div>
 

@@ -7,18 +7,12 @@ import FlatButton from 'material-ui/FlatButton';
 import Paper from 'material-ui/Paper';
 import Chip from 'material-ui/Chip';
 import {blue300, pink300, purple300, yellow300, orange300, grey300,indigo900} from 'material-ui/styles/colors';
+import Moment from 'react-moment';
 
 
 class InterviewItem extends Component {
   constructor(props){
     super(props);
-
-    this.subtitle = this.subtitle.bind(this);
-  }
-
-  subtitle(){
-    var temp = 'submitted at ' + this.props.data.created_at.slice(0, 10) + ' by ' + this.props.data.author;
-    return temp;
   }
 
   color() {
@@ -89,7 +83,7 @@ class InterviewItem extends Component {
             </div>
 
             <div className="interviewInfo">
-              <i>{this.subtitle()}</i>
+              <i>submitted at <Moment>{this.props.data.created_at}</Moment> by {this.props.data.author}</i>
             </div>
 
             <div className="interviewQuestion">

@@ -18,6 +18,8 @@ import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
 import React, { Component } from 'react';
 import {purple500, grey50,blue300, pink300, purple300, yellow300, orange300, grey300,indigo900} from 'material-ui/styles/colors';
+import Response from '../../modules/Response';
+import AlertDialog from '../AlertDialog/AlertDialog';
 
 
 class InterviewPage extends Component {
@@ -54,6 +56,15 @@ class InterviewPage extends Component {
         this.deleteInterview = this.deleteInterview.bind(this);
     }
 
+    interceptError(err){
+      Response.setError(err);
+      //Force rerendering components
+      //Apparently one forceUpdate is not enough to show the dialog on the first call
+      //This is a dirty hack to get it to work the first time
+      this.forceUpdate();
+      this.forceUpdate();
+  }
+
     componentDidMount() {
         const url = '/interviewQuestions/' + this.props.params.id + '/show';
         axios.get(url)
@@ -86,11 +97,6 @@ class InterviewPage extends Component {
             break; 
         }
         return colorType;
-    }
-
-    subtitle(){
-        var temp = 'submitted at ' + this.state.interview.created_at + ' by ' + this.state.interview.author;
-        return temp;
     }
 
     
@@ -143,6 +149,7 @@ class InterviewPage extends Component {
         })
         .catch((err) => {
             console.log(err);
+            this.interceptError(err);
         });
     }
 
@@ -159,6 +166,7 @@ class InterviewPage extends Component {
         })
         .catch((err) => {
             console.log(err);
+            this.interceptError(err);
         });
 
     }
@@ -185,7 +193,8 @@ class InterviewPage extends Component {
         this.setState({interview: updated});
         })
         .catch((err) => {
-        console.log(err);
+            console.log(err);
+            this.interceptError(err);
         });
     }
 
@@ -310,6 +319,7 @@ class InterviewPage extends Component {
         return(
 
             <div className="container">
+                <AlertDialog errorMsg={Response.getError()} isOpen={Response.isErrorSet()} />
                 <Paper>
                     <div className="titlee">
                         {this.state.interview.title}   
@@ -349,7 +359,7 @@ class InterviewPage extends Component {
 
 
                     <div className="info">
-                        {this.subtitle()}                
+                        submitted at {this.state.interview.created_at} by {this.state.interview.author}
                     </div>
 
                     <div className="topic">
