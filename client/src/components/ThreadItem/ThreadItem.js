@@ -6,6 +6,7 @@ import Paper from 'material-ui/Paper'
 import { Link } from 'react-router';
 import axios from 'axios';
 import Auth from '../../modules/Auth';
+import Moment from 'react-moment';
 import './ThreadItem.css';
 
 class ThreadItem extends Component {
@@ -38,17 +39,13 @@ class ThreadItem extends Component {
 
             <div style={style.content} >
               <div className="title">
-                {this.props.showDesc ? 
-                // so it doesn't show a link to the thread on the thread page itself
-                this.props.data.title
-                : <Link to={linkToThread}>{this.props.data.title}</Link>
-                }
+                <Link to={linkToThread}>{this.props.data.title}</Link>
               </div>
               
               <div className="details">
                 <span className="author">Author - {this.props.data.author}</span> |
                 <span className="numOfComments">{this.props.data.comments.length} comments</span> |
-                <span className="date">Posted {this.props.data.created_at.slice(0, 10)}</span>
+                <span className="date">Posted <Moment>{this.props.data.created_at}</Moment></span>
               </div>
             </div>
           </div>

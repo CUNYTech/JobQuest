@@ -185,8 +185,8 @@ exports.vote_on_post = function(req, res) {
 			return res.status(404).json(errors);
 		}
 
-		console.log('post is, ', post);
-		console.log('post is, ', post.votedOn);
+		//console.log('post is, ', post);
+		//console.log('post is, ', post.votedOn);
 
 		var foundUser = false;
 		for(var i = 0; i < post.votedOn.length; i++) {
@@ -198,12 +198,14 @@ exports.vote_on_post = function(req, res) {
 		}
 		if(!foundUser){	//Could not find user in votedOn array, make a new entry
 			console.log('User did not vote on post '+id+' yet, adding to votedOn array');
+			//console.log('i is',i);
 			var length = post.votedOn.length;
 			post.votedOn.push({userID:req.user._id, value:0});
-			if(length != 0){	//Only increment index if array was previously non-empty, otherwise we would have an index of 1 in an array of size 1.
-				i++;
-			}
+			i = length;
 		}
+
+		//console.log(post.votedOn);
+		//console.log('i is',i);
 
 		if(type == "up"){	//Increment votes
 			switch(post.votedOn[i].value){

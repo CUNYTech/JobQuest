@@ -1,3 +1,4 @@
+import Auth from '../../modules/Auth';
 import React, { PropTypes,Component } from 'react';
 import axios from 'axios';
 import RaisedButton from 'material-ui/RaisedButton';
@@ -47,7 +48,7 @@ class InterviewForm extends Component {
       alert('All fields are required');
     }
 
-    axios.post('/interviewQuestions/create', newQuestion)
+    axios.post('/interviewQuestions/create', newQuestion, {headers: {authorization: 'bearer ' + Auth.getToken()} })
     .then((res) => {
       console.log('success', res);
       this.context.router.replace('/interview');
@@ -98,10 +99,10 @@ class InterviewForm extends Component {
 
         <div>
           <Paper className="container">
-            <h1 style={styleHeading} className="heading">Submit a New Interview Preparation Question</h1>
+            <h1 style={styleHeading} id="head">Submit a New Interview Preparation Question</h1>
             <form onSubmit={this.handleSubmit}>
 
-            <div className="topic">
+            <div id="topic">
                 <DropDownMenu style={styleCustomWidth} value={this.state.value} onChange={this.handleTopic} autoWidth={false} openImmediately={true}>
                   <MenuItem value={'Algorithm'} primaryText="Algorithm" />
                   <MenuItem value={'Database'} primaryText="Database" />
@@ -111,7 +112,7 @@ class InterviewForm extends Component {
                 </DropDownMenu>
               </div>
 
-              <div className="titlee">
+              <div id="titlee">
                 <TextField value={this.state.title} 
                             onChange={this.handleTitle} 
                             fullWidth={true} 

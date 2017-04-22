@@ -4,7 +4,7 @@ import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
 import './AnswerBox.css';
 
-class AnswerBox extends Component {
+export default class AnswerBox extends Component {
 
   constructor(props){
     super(props);
@@ -49,5 +49,3 @@ class AnswerBox extends Component {
 AnswerBox.PropTypes = {
   onSubmit: React.PropTypes.func.isRequired
 };
-
-export default AnswerBox;

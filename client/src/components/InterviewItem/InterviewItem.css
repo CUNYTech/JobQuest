@@ -19,14 +19,14 @@
 }
 
 .interviewInfo {
-    font-size: 15px;
-    font-weight: 700;
+    font-size: 18px;
+    /*font-weight: 700;*/
     margin-top: 2px;
     margin-left: 1px;
 }
 
 .interviewQuestion {
-    font-size: 15px;
+    font-size: 18px;
     margin-left: 1px;
     margin-top: 10px;
     

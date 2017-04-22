@@ -5,8 +5,8 @@ import RaisedButton from 'material-ui/RaisedButton';
 import { Link } from 'react-router';
 import Auth from '../../modules/Auth';
 import axios from 'axios';
-
-// import './ThreadListPage.css';
+import Response from '../../modules/Response';
+import AlertDialog from '../AlertDialog/AlertDialog';
 
 
 const ThreadListPage = React.createClass({
@@ -15,6 +15,15 @@ const ThreadListPage = React.createClass({
     return {
       threads: undefined
     }
+  },
+
+  interceptError(err){
+      Response.setError(err);
+      //Force rerendering components
+      //Apparently one forceUpdate is not enough to show the dialog on the first call
+      //This is a dirty hack to get it to work the first time
+      this.forceUpdate();
+      this.forceUpdate();
   },
 
   upvoteThread(idx){
@@ -34,6 +43,7 @@ const ThreadListPage = React.createClass({
       })
       .catch((err) => {
         console.log(err);
+        this.interceptError(err);
       })
   },
 
@@ -52,6 +62,7 @@ const ThreadListPage = React.createClass({
       })
       .catch((err) => {
         console.log(err);
+        this.interceptError(err);
       })
   },
 
@@ -69,9 +80,12 @@ const ThreadListPage = React.createClass({
   render: function(){
 
     return (
-        <ThreadItemContainer threads={this.state.threads}
-                             onUpvote={this.upvoteThread}
-                             onDownvote={this.downvoteThread} />
+        <div>
+          <AlertDialog errorMsg={Response.getError()} open={Response.isErrorSet()} />
+          <ThreadItemContainer threads={this.state.threads}
+                              onUpvote={this.upvoteThread}
+                              onDownvote={this.downvoteThread} />
+        </div>
     );
   }
 }); 

@@ -6,6 +6,8 @@ import { Link } from 'react-router';
 import EditThreadForm from '../EditThreadForm/EditThreadForm';
 import axios from 'axios';
 import Auth from '../../modules/Auth';
+import Moment from 'react-moment';
+import FlatButton from 'material-ui/FlatButton';
 
 import '../ThreadItem/ThreadItem.css';
 
@@ -31,7 +33,7 @@ const ThreadPageItem = React.createClass({
       margin: 20,
       modify: {
         display: 'inline-block',
-        margin: 5
+        float:'right'
       },
       content: {
         padding: 3,
@@ -39,9 +41,6 @@ const ThreadPageItem = React.createClass({
         width: '95%'
       }
     };
-
-    var linkToThread = this.props.data ? "thread/" + this.props.data._id
-                                        : null;
 
     return (
       <Paper style={style} zDepth={1}>
@@ -62,12 +61,12 @@ const ThreadPageItem = React.createClass({
                 :
                 <div> 
                   <div className="title">
-                    <Link to={linkToThread}>{this.props.data.title}</Link>     
+                    {this.props.data.title}    
                   </div>
 
                   <div style={style.modify} >
-                    <button id="editThread" onClick={this.toggleEdit}>Edit</button>
-                    <button id="deleteThread" onClick={this.props.handleDelete}>Delete</button>
+                    <FlatButton labelStyle={{color:'#8f1bc1'}} id="editThread" label="Edit" onTouchTap={this.toggleEdit} />
+                    <FlatButton labelStyle={{color:'#8f1bc1'}} id="deleteThread" label="Delete" onTouchTap={this.props.handleDelete} />
                   </div>           
 
                   <div className="desc">
@@ -79,7 +78,7 @@ const ThreadPageItem = React.createClass({
               <div className="details">
                 <span className="author">Author - {this.props.data.author}</span> |
                 <span className="numOfComments">{this.props.data.comments.length} comments</span> |
-                <span className="date">Posted {this.props.data.created_at.slice(0, 10)}</span>
+                <span className="date">Posted <Moment>{this.props.data.created_at}</Moment></span>
               </div>
             </div>
           </div>

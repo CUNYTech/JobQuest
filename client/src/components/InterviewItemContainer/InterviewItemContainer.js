@@ -1,33 +1,30 @@
-import { Link, IndexLink } from 'react-router';
-import React, { Component } from 'react';
-import InterviewItem from '../InterviewItem/InterviewItem'
+import './InterviewItemContainer.css'
 import axios from 'axios';
-import update from 'immutability-helper';
 import {Card, CardActions, CardHeader, CardMedia, CardTitle, CardText} from 'material-ui/Card';
-import RaisedButton from 'material-ui/RaisedButton';
+import { Link, IndexLink } from 'react-router';
 import {GridList, GridTile} from 'material-ui/GridList';
+import InterviewItem from '../InterviewItem/InterviewItem'
+import Paper from 'material-ui/Paper';
+import React, { Component } from 'react';
+import RaisedButton from 'material-ui/RaisedButton';
+import update from 'immutability-helper';
 import {purple500, blue500, grey50} from 'material-ui/styles/colors';
 
 
-class InterviewItemContainer extends Component {
+export default class InterviewItemContainer extends Component {
 
   constructor(props){
     super(props);
-
     this.state = {
-      threads: []
+      interviewQuestion: []
     };
 }
 
   componentDidMount() {
-    // const url = 'http://rest.learncode.academy/api/am/friends'; 
-
     const url = '/interviewQuestions/'; 
     axios.get(url)
       .then(res => {
-        console.log(res.data);
-        console.log(res.data[0]._id);
-        this.setState({threads: res.data})
+        this.setState({interviewQuestion: res.data.reverse()});
       });
   }
 
@@ -39,6 +36,10 @@ class InterviewItemContainer extends Component {
         marginUp: '50px',
         marginLeft: '50px',
         marginRight: '50px'
+      },
+
+      title: {
+        paddingTop: '35px'
       },
 
       right: {
@@ -53,7 +54,7 @@ class InterviewItemContainer extends Component {
         fontSize: '40px',
         fontWeight: 'bold', 
         color: 'purple',
-        marginLeft: '15px'
+        marginLeft: '20px'
       },
 
       description: {
@@ -75,23 +76,20 @@ class InterviewItemContainer extends Component {
 
 
     return (
+      <div id="shell">
         <GridList cols={12}>
           <GridTile cols={8} rows={'auto'}>
-            {/*Threads*/}
             <Card zDepth={2} style={styleCard.left}>
-              <CardHeader title="Interview Questions" titleStyle={styleFont.left}/>
+              <CardTitle title="Technical Interview Preparation Questions" titleStyle={styleFont.left} style={styleCard.title} />
               <CardText style={styleFont.description}>
-                {this.state.threads ? this.state.threads.map((thread, idx) => {
-                                return <InterviewItem key={idx} data={thread}/>
-                              })
-                              : null}
+                {this.state.interviewQuestion ? this.state.interviewQuestion.map((question,idx) => {
+                  return <InterviewItem data={question}/>
+                }) : null}
               </CardText>
             </Card>
           </GridTile>
 
           <GridTile cols={4} rows={'auto'}>
-
-            {/*Button and Description*/}
             <Card zDepth={2} style={styleCard.right}>
               <Link to='/postNewInterview'>
                 <RaisedButton backgroundColor={purple500} labelStyle={styleLabel} label="Submit a New Question" fullWidth={true}/>
@@ -106,33 +104,10 @@ class InterviewItemContainer extends Component {
                 <br />
                 </CardText>
             </Card>
-
-            {/*High score*/}
-            <Card zDepth={2} style={styleCard.right}>
-              <CardText style={styleFont.contributor}>
-                <h2>Top Contributors</h2>
-                <h3>1. Joseph Park</h3>
-                <h3>2. Joseph Park</h3>
-                <h3>3. Joseph Park</h3>
-                <br />
-                <h2>Recent Contributors</h2>
-                <h3>1. Joseph Park</h3>
-                <h3>2. Joseph Park</h3>
-                <h3>3. Joseph Park</h3>
-                <br />
-                </CardText>
-            </Card>
           </GridTile>
-        </GridList> 
-
+        </GridList>
+      </div>
     );
   }
 
 }
-
-InterviewItemContainer.PropTypes = {
-  items: React.PropTypes.array.isRequired
-  // add two funcs, TODO
-};
-
-export default InterviewItemContainer;

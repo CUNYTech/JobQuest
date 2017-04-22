@@ -18,13 +18,17 @@ import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
 import React, { Component } from 'react';
 import {purple500, grey50,blue300, pink300, purple300, yellow300, orange300, grey300,indigo900} from 'material-ui/styles/colors';
+import Response from '../../modules/Response';
+import AlertDialog from '../AlertDialog/AlertDialog';
+import Moment from 'react-moment';
 
 
-class InterviewPage extends Component {
+export default class InterviewPage extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            interview: [],
+            thisQuestion: {},
+
             editopen: false,
             deleteopen: false,
             
@@ -32,7 +36,6 @@ class InterviewPage extends Component {
             title: '', 
             question:'', 
             originalAnswer:''
-
         };
 
         this.handleAnswer = this.handleAnswer.bind(this);
@@ -40,6 +43,9 @@ class InterviewPage extends Component {
         this.handleQuestion = this.handleQuestion.bind(this);
 
         this.addAnswer = this.addAnswer.bind(this);
+
+        this.editAnswer = this.editAnswer.bind(this);
+        this.deleteAnswer = this.deleteAnswer.bind(this);
 
         //just changing the state to true
         this.handleDeleteInterviewOpen = this.handleDeleteInterviewOpen.bind(this);
@@ -54,18 +60,27 @@ class InterviewPage extends Component {
         this.deleteInterview = this.deleteInterview.bind(this);
     }
 
+    interceptError(err){
+      Response.setError(err);
+      //Force rerendering components
+      //Apparently one forceUpdate is not enough to show the dialog on the first call
+      //This is a dirty hack to get it to work the first time
+      this.forceUpdate();
+      this.forceUpdate();
+  }
+
     componentDidMount() {
         const url = '/interviewQuestions/' + this.props.params.id + '/show';
         axios.get(url)
         .then(res => {
             console.log('the response went through', res.data);
-            this.setState({interview: res.data});
+            this.setState({thisQuestion: res.data});
         });
     }
 
     color() {
         var colorType;
-        switch(this.state.interview.topic) {
+        switch(this.state.thisQuestion.topic) {
         case 'Software Engineering':
             colorType = blue300;
             break;
@@ -87,12 +102,6 @@ class InterviewPage extends Component {
         }
         return colorType;
     }
-
-    subtitle(){
-        var temp = 'submitted at ' + this.state.interview.created_at + ' by ' + this.state.interview.author;
-        return temp;
-    }
-
     
     //for current interview thread
 
@@ -114,6 +123,10 @@ class InterviewPage extends Component {
 
     handleEditInterviewOpen () {
         this.setState({editopen: true});
+        this.setState({value: this.state.thisQuestion.value});
+        this.setState({title: this.state.thisQuestion.title});
+        this.setState({question: this.state.thisQuestion.question});
+        this.setState({originalAnswer: this.state.thisQuestion.originalAnswer});
     }
 
     handleDeleteInterviewOpen () {
@@ -138,11 +151,12 @@ class InterviewPage extends Component {
         axios.post(editURL, newEditSubmit, {headers: {authorization: 'bearer ' + Auth.getToken()} })
         .then((res) => {
             console.log('sucess, edited', res);
-            this.setState({interview: res.data});
-            this.context.router.replace('/interviewQuestions/' + this.props.params.id + '/show');
+            this.setState({thisQuestion: res.data});
+            this.props.router.replace('/interviewQuestions/' + this.props.params.id + '/show');
         })
         .catch((err) => {
             console.log(err);
+            this.interceptError(err);
         });
     }
 
@@ -152,13 +166,14 @@ class InterviewPage extends Component {
         
         const deleteURL = '/interviewQuestions/' + this.props.params.id + '/remove';
         axios.delete(deleteURL, {headers: {authorization: 'bearer ' + Auth.getToken()} })
-        .then((res) => {
+        .then(res => {
             console.log('sucess, deleted', res);
             // the problem arises here 
-            this.context.router.replace('/interview');
+            this.props.router.replace('/interview');
         })
-        .catch((err) => {
+        .catch(err => {
             console.log(err);
+            this.interceptError(err);
         });
 
     }
@@ -168,26 +183,48 @@ class InterviewPage extends Component {
     
     addAnswer(comment) {
         // might need to do an update on that whole object
-        var newComments = this.state.interview.otherAnswers.slice();
-        newComments.push({answerText: comment});
-
-        var updated = Object.assign({}, this.state.interview, {otherAnswers: newComments});
-        
-
-        console.log(comment);
-
         const url = '/interviewQuestions/' + this.props.params.id + '/answers/create';
+        
         axios.post(url, {answerText: comment})
         .then((res) => {
         // no way to update the UI here, need to rework the app architecture
-        console.log('success', res);
-
-        this.setState({interview: updated});
+            console.log('success', res);
+            this.setState({thisQuestion: res.data});
         })
         .catch((err) => {
-        console.log(err);
+            console.log(err);
         });
     }
+
+
+    //properties of comments
+
+    editAnswer(obj) {
+        const editURL = '/interviewQuestions/' + this.props.params.id + '/answers/' + obj.answerID + '/edit';
+        axios.post(editURL, {answerText: obj.editedText}, {headers: {authorization: 'bearer ' + Auth.getToken()} })
+        .then((res) => {
+            console.log('sucess, edited', res);
+            this.setState({thisQuestion: res.data});
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+    }
+
+    deleteAnswer(answerid) {
+        const deleteURL = '/interviewQuestions/' + this.props.params.id + '/answers/' + answerid + '/remove';
+        axios.delete(deleteURL, {headers: {authorization: 'bearer ' + Auth.getToken()} })
+        .then(res => {
+            console.log('sucess, deleted.', res);
+            this.setState({thisQuestion: res.data});
+        })
+        .catch((err) => {
+            console.log(err);
+            this.interceptError(err);
+        });
+    }
+
+
 
     
 
@@ -310,9 +347,10 @@ class InterviewPage extends Component {
         return(
 
             <div className="container">
+                <AlertDialog errorMsg={Response.getError()} isOpen={Response.isErrorSet()} />
                 <Paper>
                     <div className="titlee">
-                        {this.state.interview.title}   
+                        {this.state.thisQuestion.title}   
                         <div className="menu">
                             <IconMenu
                                 iconButtonElement={<IconButton><MoreVertIcon /></IconButton>}
@@ -349,21 +387,21 @@ class InterviewPage extends Component {
 
 
                     <div className="info">
-                        {this.subtitle()}                
+                        submitted at <Moment>{this.state.thisQuestion.created_at}</Moment> by {this.state.thisQuestion.author}
                     </div>
 
                     <div className="topic">
                         <Chip backgroundColor={this.color()} style={styles.chip}>
-                            {this.state.interview.topic}                                       
+                            {this.state.thisQuestion.topic}                                       
                         </Chip>
                     </div>
 
                     <div className="question">
-                        <strong>Question: </strong> {this.state.interview.question}                
+                        <strong>Question: </strong> {this.state.thisQuestion.question}                
                     </div>
 
                     <div className="answer">
-                        <strong>Answer: </strong> {this.state.interview.originalAnswer}                
+                        <strong>Answer: </strong> {this.state.thisQuestion.originalAnswer}                
                     </div>
                 </Paper>
                     
@@ -375,8 +413,8 @@ class InterviewPage extends Component {
 
                 <Paper style={stylePaper.comment}>
                     <div className="answerList">    
-                        {this.state.interview.otherAnswers ? this.state.interview.otherAnswers.map((individualAnswer, idx) => {
-                            return <AnswerList key={idx} data={individualAnswer} />
+                        {this.state.thisQuestion.otherAnswers ? this.state.thisQuestion.otherAnswers.map((individualAnswer, idx) => {
+                            return <AnswerList editAnswer={this.editAnswer} deleteAnswer={this.deleteAnswer} answer={individualAnswer} question={this.props.params.id}/>
                         }) : null}
                     </div>
                 </Paper>
@@ -389,8 +427,6 @@ class InterviewPage extends Component {
 
 }
 
-InterviewPage.propTypes = {
-    data: React.PropTypes.object.isRequired
+InterviewPage.PropTypes = {
+    router: React.PropTypes.object.isRequired
 };
-
-export default InterviewPage;

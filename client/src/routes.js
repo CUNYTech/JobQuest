@@ -3,7 +3,6 @@ import HomePage from './components/HomePage/HomePage';
 import DashboardPage from './components/Dashboard/DashboardPage';
 import LoginPage from './components/LoginForm/LoginPage';
 import SignUpPage from './components/SignUpForm/SignUpPage';
-import ProfilePage from './components/Profile/ProfilePage';
 import ForumLayout from './components/ForumLayout/ForumLayout';
 import ThreadForm from './components/ThreadForm/ThreadForm';
 import ThreadPage from './components/ThreadPage/ThreadPage';
@@ -14,6 +13,7 @@ import InterviewForm from './components/InterviewForm/InterviewForm';
 import AboutPage from './components/AboutPage/AboutPage';
 import ResourcePage from './components/ResourcePage/ResourcePage';
 import InterviewPage from './components/InterviewPage/InterviewPage';
+import NotFoundPage from './components/NotFoundPage/NotFoundPage';
 import Auth from './modules/Auth';
 
 
@@ -53,11 +53,6 @@ const routes = {
     },
 
     {
-      path: '/profile',
-      component: ProfilePage
-    },
-
-    {
       path: '/forum',
       component: ForumLayout,
       indexRoute: {component: ThreadListPage},
@@ -76,12 +71,24 @@ const routes = {
     
     {
       path: '/new_post',
-      component: ThreadForm
+      getComponent: (location, callback) => {
+        if (Auth.isUserAuthenticated()) {
+          callback(null, ThreadForm);
+        } else {
+          callback(null, LoginPage);
+        }
+      }
     },
 
     {
       path: '/app-log',
-      component: AppLogContainer
+      getComponent: (location, callback) => {
+        if (Auth.isUserAuthenticated()) {
+          callback(null, AppLogContainer);
+        } else {
+          callback(null, LoginPage);
+        }
+      }
     }, 
 
     {
@@ -91,7 +98,13 @@ const routes = {
 
     {
       path: '/postNewInterview',
-      component: InterviewForm
+      getComponent: (location, callback) => {
+        if (Auth.isUserAuthenticated()) {
+          callback(null, InterviewForm);
+        } else {
+          callback(null, LoginPage);
+        }
+      }
     },
 
     {
@@ -112,6 +125,12 @@ const routes = {
     {
       path: '/eachInterview',
       component: InterviewPage
+    },
+
+    //Make sure that this route is the last one!!!!
+    {
+    path: '*',
+    component: NotFoundPage
     }
 
   ]

@@ -2,21 +2,36 @@
 class Auth {
 
   /**
-   * Authenticate a user. Save a token string in Local Storage
+   * Authenticate a user. Save a token stringand timestamp in Local Storage
    *
    * @param {string} token
    */
   static authenticateUser(token) {
+    var d = new Date();
+    localStorage.setItem('timestamp',d.getTime());
     localStorage.setItem('token', token);
   }
 
   /**
-   * Check if a user is authenticated - check if a token is saved in Local Storage
+   * Check if a user is authenticated - check if a token is saved in Local Storage and the amount of time passed from last login
    *
    * @returns {boolean}
    */
   static isUserAuthenticated() {
     return localStorage.getItem('token') !== null;
+  }
+
+  /**
+   * Checks if the user's token is still valid. Deauthenticates the user if it isn't.
+   *
+   */
+  static checkTokenExpiration() {
+    var d = new Date();
+    var timePassed = d.getTime() - localStorage.getItem('timestamp')
+    //Removes token if more than 12 hours have passed since last login (token limit)
+    if(timePassed > 12*60*60*1000){
+      this.deauthenticateUser();
+    }
   }
 
   /**

@@ -1,3 +1,5 @@
+import Auth from '../../modules/Auth';
+import axios from 'axios';
 import {Card, CardTitle, CardText}  from 'material-ui/Card';
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
@@ -5,32 +7,48 @@ import IconButton from 'material-ui/IconButton';
 import IconMenu from 'material-ui/IconMenu';
 import MenuItem from 'material-ui/MenuItem';
 import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
-import React, {Component} from 'react';
+import React, {Component,PropTypes} from 'react';
 import TextField from 'material-ui/TextField';
-import Paper from 'material-ui/Paper';
+import Paper from 'material-ui/Paper'; 
+import Moment from 'react-moment';
+
+//need to fix the rendering of editing and deleting comments.
 
 
-class AnswerList extends Component {
+export default class AnswerList extends Component {
     constructor(props) {
         super(props);
         this.state = {
             editopen:false,
             deleteopen:false,
-            youranswer: ''
+            originalAnswerData: this.props.answer,
+            youranswer: this.props.answer.answerText,
         }
         
+        //handle open
         this.handleEditInterviewOpen = this.handleEditInterviewOpen.bind(this);
         this.handleDeleteInterviewOpen = this.handleDeleteInterviewOpen.bind(this);
         
+        //handle close
         this.handleEditInterviewClose = this.handleEditInterviewClose.bind(this);
         this.handleDeleteInterviewClose = this.handleDeleteInterviewClose.bind(this);
 
+        //handle answer
         this.handleAnswer = this.handleAnswer.bind(this);
 
+        //going to parent call
         this.editInterview = this.editInterview.bind(this);
         this.deleteInterview = this.deleteInterview.bind(this);
     }
 
+    componentWillReceiveProps(nextProps) {
+        if(nextProps.answer != this.props.answer) {
+            this.setState({originalAnswerData: nextProps.answer});
+        }
+
+    }
+
+    //handle open
     handleEditInterviewOpen() {
         this.setState({editopen: true});
     }
@@ -39,6 +57,8 @@ class AnswerList extends Component {
         this.setState({deleteopen: true});
     }
 
+
+    //handle close
     handleEditInterviewClose() {
         this.setState({editopen: false});
     }
@@ -47,6 +67,8 @@ class AnswerList extends Component {
         this.setState({deleteopen: false});
     }
 
+
+    //handle input
     handleAnswer(e) {
         this.setState({youranswer: e.target.value});
     }
@@ -55,32 +77,17 @@ class AnswerList extends Component {
 
     editInterview() {
         this.setState({editopen: false});
-        // console.log(this.props.params.id);
-        console.log(this.props.data._id);
-        // console.log(this.props.data.id);
-        // const editURL = '/interviewQuestions/' + this.props.params.id + '/answers' +  + '/edit';
-        // axios.post(editURL, this.state.youranswer, {headers: {authorization: 'bearer ' + Auth.getToken()} })
-        // .then((res) => {
-        //     console.log('sucess, edited', res);
-        //     this.setState({interview: res.data});
-        //     this.context.router.replace('/interviewQuestions/' + this.props.params.id + '/show');
-        // })
-        // .catch((err) => {
-        //     console.log(err);
-        // });
-
-    // app.route('/interviewQuestions/:QuestionId/answers/:AnswerId/edit')
-	// 	.post(controller.edit_an_answer);
-
+        var finalObject = {
+            answerID: this.props.answer._id,
+            editedText: this.state.youranswer
+        }
+        this.props.editAnswer(finalObject);
     }
 
 
     deleteInterview() {
         this.setState({deleteopen: false});
-	// // DELETE REQUESTS
-	// app.route('/interviewQuestions/:QuestionId/answers/:AnswerId/remove')
-	// 	.delete(controller.remove_an_answer);
-
+        this.props.deleteAnswer(this.props.answer._id);
     }
 
 
@@ -127,19 +134,11 @@ class AnswerList extends Component {
 
         return( 
             <div>   
+                {this.props.answer ?
                 <Card>
-                    <CardTitle title={this.props.data.author} subtitle= {this.props.data.created_at.slice(0,10)} 
-                                 />
+                    <CardTitle title={this.state.originalAnswerData.author} subtitle={<Moment>{this.state.originalAnswerData.created_at}</Moment>} />
                     <CardText>
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                        Donec mattis pretium massa. Aliquam erat volutpat. Nulla facilisi.
-                        Donec vulputate interdum sollicitudin. Nunc lacinia auctor quam sed pellentesque.
-                        Aliquam dui mauris, mattis quis lacus id, pellentesque lobortis odio.
-
-                        <br />
-
-                        {this.props.data.answerText}
-
+                        {this.state.originalAnswerData.answerText}
                     </CardText>
 
                     <div className="menu">
@@ -147,7 +146,7 @@ class AnswerList extends Component {
                             iconButtonElement={<IconButton><MoreVertIcon /></IconButton>}
                             anchorOrigin={{horizontal: 'left', vertical: 'top'}}
                             targetOrigin={{horizontal: 'left', vertical: 'top'}}
-                        >
+                            >
                             <MenuItem onClick={this.handleEditInterviewOpen} primaryText="Edit" />
                             <MenuItem onClick={this.handleDeleteInterviewOpen} primaryText="Delete" />
                         </IconMenu>
@@ -172,9 +171,11 @@ class AnswerList extends Component {
                             >
                             Are you sure about deleting?
                         </Dialog>
-                    </div>
-                        
+                    </div> 
                 </Card>
+
+                : null }
+
             </div>
 
         );
@@ -182,7 +183,8 @@ class AnswerList extends Component {
 }
 
 AnswerList.propTypes = {
-    data: React.PropTypes.object.isRequired
+    answer: React.PropTypes.object.isRequired,
+    router: React.PropTypes.object.isRequired,
+    editAnswer: React.PropTypes.func.isRequired,
+    deleteAnswer: React.PropTypes.func.isRequired
 };
-
-export default AnswerList;

@@ -7,6 +7,8 @@ import EditThreadForm from '../EditThreadForm/EditThreadForm';
 import Auth from '../../modules/Auth';
 import axios from 'axios';
 import './ThreadPage.css'
+import Response from '../../modules/Response';
+import AlertDialog from '../AlertDialog/AlertDialog';
 
 const ThreadPage = React.createClass({
 
@@ -22,23 +24,25 @@ const ThreadPage = React.createClass({
     };
   },
 
+  interceptError(err){
+      Response.setError(err);
+      //Force rerendering components
+      //Apparently one forceUpdate is not enough to show the dialog on the first call
+      //This is a dirty hack to get it to work the first time
+      this.forceUpdate();
+      this.forceUpdate();
+  },
+
   addComment(comment) {
-    // might need to do an update on that whole object
-    var newComments = this.state.threadData.comments.slice();
-    newComments.push({text: comment});
-
-    var updated = Object.assign({}, this.state.threadData, {comments: newComments});
-
     const url = '/posts/' + this.props.params.id + '/comments/create';
     axios.post(url, {text: comment})
     .then((res) => {
-      // no way to update the UI here, need to rework the app architecture
-      console.log('success', res);
-
-      this.setState({threadData: updated});
+      //Update threadData
+      this.setState({threadData: res.data});
     })
     .catch((err) => {
       console.log(err);
+      this.interceptError(err);
     });
   },
 
@@ -51,6 +55,7 @@ const ThreadPage = React.createClass({
     })
     .catch((err) => {
       console.log(err);
+      this.interceptError(err);
     });
   },
 
@@ -63,6 +68,7 @@ const ThreadPage = React.createClass({
     })
     .catch((err) => {
       console.log(err);
+      this.interceptError(err);
     });
   },
 
@@ -76,6 +82,7 @@ const ThreadPage = React.createClass({
     })
     .catch((err) => {
       console.log(err);
+      this.interceptError(err);
     });
   },
 
@@ -90,6 +97,7 @@ const ThreadPage = React.createClass({
     })
     .catch((err) => {
       console.log(err);
+      this.interceptError(err);
     });
   },
 
@@ -106,6 +114,7 @@ const ThreadPage = React.createClass({
       })
       .catch((err) => {
         console.log(err);
+        this.interceptError(err);
       })
   },
 
@@ -120,6 +129,7 @@ const ThreadPage = React.createClass({
       })
       .catch((err) => {
         console.log(err);
+        this.interceptError(err);
       })
   },
 
@@ -149,6 +159,7 @@ const ThreadPage = React.createClass({
       <Card style={style}>
         {this.state.threadData ? 
           <div>
+            <AlertDialog errorMsg={Response.getError()} open={Response.isErrorSet()} />
             <ThreadPageItem data={this.state.threadData}
                             onUpvote={this.upvoteThread} 
                             onDownvote={this.downvoteThread} 

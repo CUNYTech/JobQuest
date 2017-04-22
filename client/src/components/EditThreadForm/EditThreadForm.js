@@ -1,12 +1,15 @@
 import React, { Component } from 'react';
 import axios from 'axios';
+import { FlatButton, TextField} from 'material-ui';
 
 var EditThreadForm = React.createClass({
 
   getInitialState(){
     return {
       titleInput: this.props.title || '',
-      descInput: this.props.desc || ''
+      descInput: this.props.desc || '',
+      titleInputError: '',
+      descInputError: ''
     };
   },
 
@@ -16,6 +19,14 @@ var EditThreadForm = React.createClass({
     // for multiple inputs, attach a name to the tag
     // update with [name]: value
     var name = e.target.name;
+
+    //Checks to see if the new value is empty, returns an error string if it is
+    if(e.target.value == ''){
+     this.setState({[name + 'Error']:'This field cannot be empty.'});
+    }
+    else{
+      this.setState({[name + 'Error']:''});
+    }
 
     this.setState({[name]: e.target.value});
   },
@@ -30,12 +41,28 @@ var EditThreadForm = React.createClass({
   render(){
     return (
       <div>
-        <input type="text" id="editTitle" name="titleInput"
-               value={this.state.titleInput} onChange={this.handleChange} />
-        <input type="text" id="editDesc" name="descInput"
-               value={this.state.descInput} onChange={this.handleChange} />
-        <button id="saveEdit" onClick={this.handleClick} >Save</button>
-        <button onClick={this.props.handleToggle} >Cancel</button>
+        <TextField
+          id="editTitle"
+          name="titleInput"
+          style={{width:'100%'}}
+          errorText={this.state.titleInputError}
+          value={this.state.titleInput}
+          onChange={this.handleChange}
+        />
+        <TextField
+          id="editDesc"
+          name="descInput"
+          style={{width:'100%'}}
+          errorText={this.state.descInputError}
+          multiLine={true}
+          rows={8}
+          value={this.state.descInput}
+          onChange={this.handleChange}
+        />
+        <div style={{float:"right"}}>
+          <FlatButton labelStyle={{color:'#8f1bc1'}} label="Save" onTouchTap={this.handleClick} />
+          <FlatButton labelStyle={{color:'#8f1bc1'}} label="Cancel" onTouchTap={this.props.handleToggle} />
+        </div>
       </div>
     );
   }

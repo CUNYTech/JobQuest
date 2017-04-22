@@ -16,17 +16,27 @@
       padding: 100px;
 }
 
-.titlee {
-    margin-left: 50px;
-    margin-right: 50px;
-}
-
 .question {
     margin-left: 50px;
     margin-right: 50px;
 }
 
 .answer {
+    margin-left: 50px;
+    margin-right: 50px;
+}
+
+#head {
+    font-size: 30px;
+    padding-top: 35px;
+    padding-bottom: 35px;
+}
+
+#topic {
+    margin-bottom: 30px;
+}
+
+#titlee {
     margin-left: 50px;
     margin-right: 50px;
 }
