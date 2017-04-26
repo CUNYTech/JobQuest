@@ -164,6 +164,20 @@ class AppLogTable extends Component{
 
 
     render(){
+        //added 
+        var piechart = [];
+        if(this.state.stats.applied){
+            piechart.push({x:'applied', y:this.state.stats.applied});
+        }
+        if(this.state.stats.phone){
+            piechart.push({x:'phone', y:this.state.stats.phone});
+        }
+        if(this.state.stats.accepted){
+            piechart.push({x:'accepted', y:this.state.stats.accepted});
+        }
+        if(this.state.stats.rejected){
+            piechart.push({x:'rejected', y:this.state.stats.rejected});
+        }
         return(
         <GridList cellHeight={'auto'}>
             <GridTile>
@@ -221,12 +235,7 @@ class AppLogTable extends Component{
                         <CardHeader title="Application Chart" style={{textAlign:'center'}} />
                         <CardText>
                             <VictoryPie 
-                                data={[
-                                    {x:'applied', y:this.state.stats.applied},
-                                    {x:'phone', y:this.state.stats.phone},
-                                    {x:'accepted', y:this.state.stats.accepted},
-                                    {x:'rejected', y:this.state.stats.rejected}
-                                ]}
+                                data={piechart}
                                 width={400}
                                 height={300}
                                 theme={VictoryTheme.material}
